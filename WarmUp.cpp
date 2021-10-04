@@ -6,22 +6,17 @@
 #include <vector>
 #include <iostream>
 #include <fstream>
-#include <string>
-#include <glm/glm.hpp>
+#include "WarmUp.h"
 using namespace std;
 
-struct vertexData {
-   glm::vec3 pos;
-};
-vector<vertexData> readVertexData(string fileName);
-vector<string> split(string str, char del);
-
+/*
 int main () {
    vector<vertexData> vertices = readVertexData("data/cube.obj");
    for (int i = 0; i < vertices.size(); i++) {
       cout << vertices[i].pos.x << ", " << vertices[i].pos.y << ", " << vertices[i].pos.z << endl;
    }
 }
+*/
 
 vector<vertexData> readVertexData(string filename) {
    string line;

@@ -4,6 +4,7 @@
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
+#include "glm/ext.hpp"
 
 #include <iostream>
 
@@ -13,22 +14,6 @@ void processInput(GLFWwindow *window);
 // settings
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
-
-const char *vertexShaderSource = "#version 330 core\n"
-    "layout (location = 0) in vec3 aPos;\n"
-    "layout (location = 1) in vec3 in_Color;\n"
-    "out vec3 vColor;\n"
-    "void main()\n"
-    "{\n"
-    "   vColor = in_Color;\n"
-    "   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
-    "}\0";
-const char *fragmentShaderSource = "#version 330 core\n"
-    "out vec4 FragColor;\n"
-    "void main()\n"
-    "{\n"
-    "   FragColor = vec4(1.0, 1.0, 1.0, 1.0f);\n"
-    "}\n\0";
 
 int main() {
     // glfw: initialize and configure
@@ -56,6 +41,15 @@ int main() {
     // // glew: load all OpenGL function pointers
     glewInit();
 
+    // read vertex shader
+    char* vertexShaderSource;
+    string vertexShaderString = readFile("source.vs");
+    vertexShaderSource = &vertexShaderString[0];
+
+    // read fragment shader
+    char* fragmentShaderSource;
+    string fragmentShaderString = readFile("source.fs");
+    fragmentShaderSource = &fragmentShaderString[0];
 
     // build and compile our shader program
     // ------------------------------------
@@ -98,8 +92,22 @@ int main() {
     // set up vertex data (and buffer(s)) and configure vertex attributes
     // ------------------------------------------------------------------
     vector<Triangle> triangles = readVertexData("data/cube.obj");
+    for (int i = 0; i < triangles.size(); i++) {
+        cout << "Triangle " << i << endl;
+        cout << triangles[i].vertex1.pos.x << ", " << triangles[i].vertex1.pos.y << ", " << triangles[i].vertex1.pos.z << endl;
+        cout << triangles[i].vertex2.pos.x << ", " << triangles[i].vertex2.pos.y << ", " << triangles[i].vertex2.pos.z << endl;
+        cout << triangles[i].vertex3.pos.x << ", " << triangles[i].vertex3.pos.y << ", " << triangles[i].vertex3.pos.z << endl;
+    }
+
     int numBytes = triangles.size() * sizeof(triangles[0]);
     int vertexSize = sizeof(triangles[0].vertex1);
+    glm::mat4 lookAt = glm::lookAt(glm::vec3(0.5, 1.0, 4.0), glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0));
+    glm::mat4 projMatrix = glm::ortho(-5.0f, 5.0f, -5.0f, 5.0f, -10.0f, 10.0f);
+
+    GLint lMatID = glGetUniformLocation(shaderProgram, "camMatrix");
+    GLint pMatID = glGetUniformLocation(shaderProgram, "projMatrix");
+    glUniformMatrix4fv(pMatID, 1, GL_FALSE, glm::value_ptr(projMatrix));
+    glUniformMatrix4fv(lMatID, 1, GL_FALSE, glm::value_ptr(lookAt));
 
     unsigned int VBO, VAO;
     glGenVertexArrays(1, &VAO);
@@ -122,7 +130,7 @@ int main() {
 
 
     // uncomment this call to draw in wireframe polygons.
-    //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
     // render loop
     // -----------
@@ -138,6 +146,8 @@ int main() {
 
         // draw our first triangle
         glUseProgram(shaderProgram);
+        glUniformMatrix4fv(pMatID, 1, GL_FALSE, glm::value_ptr(projMatrix));
+        glUniformMatrix4fv(lMatID, 1, GL_FALSE, glm::value_ptr(lookAt));
         glBindVertexArray(VAO); // seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
         glDrawArrays(GL_TRIANGLES, 0, triangles.size() * 3);
         // glBindVertexArray(0); // no need to unbind it every time 

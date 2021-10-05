@@ -9,12 +9,6 @@
 #include "WarmUp.h"
 using namespace std;
 
-/*
-void SeparateTriangles::addTriangle(Triangle t) {
-   triangles.push_back(t);
-}
-*/
-
 vector<Triangle> readVertexData(string filename) {
    string line;
    ifstream myfile(filename);
@@ -35,10 +29,10 @@ vector<Triangle> readVertexData(string filename) {
             vertices.push_back(vertex);
          }
          else if (tokens[0] == "f") {
-            int first = std::stoi(split(tokens[1], '/')[0]);
-            int second = std::stoi(split(tokens[2], '/')[0]);
-            int third = std::stoi(split(tokens[3], '/')[0]);
-            int fourth = std::stoi(split(tokens[4], '/')[0]);
+            int first = std::stoi(split(tokens[1], '/')[0]) - 1;
+            int second = std::stoi(split(tokens[2], '/')[0]) - 1;
+            int third = std::stoi(split(tokens[3], '/')[0]) - 1;
+            int fourth = std::stoi(split(tokens[4], '/')[0]) - 1;
             
             Triangle t1;
             t1.vertex1 = vertices[first];
@@ -48,8 +42,8 @@ vector<Triangle> readVertexData(string filename) {
 
             Triangle t2;
             t2.vertex1 = vertices[first];
-            t2.vertex2 = vertices[second];
-            t2.vertex3 = vertices[third];
+            t2.vertex2 = vertices[third];
+            t2.vertex3 = vertices[fourth];
             triangles.push_back(t2);
          }
       }
@@ -86,4 +80,20 @@ vector<string> split(string str, char del) {
    }
 
    return tokens;
+}
+
+string readFile(string fileName) {
+   string output = "";
+   string line;
+   ifstream myfile (fileName);
+   if (myfile.is_open()) {
+      while (getline(myfile, line)) {
+         output += line + "\n";
+      }
+      myfile.close();
+   }
+
+   else cout << "Unable to open file";
+
+   return output;
 }

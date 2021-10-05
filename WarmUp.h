@@ -13,13 +13,7 @@ struct Triangle {
    struct vertexData vertex3;
 };
 
-/*
-struct SeparateTriangles {
-   vector<Triangle> triangles;
-      
-   void addTriangle(Triangle t);
-};
-*/
+string readFile(string fileName);
 
 vector<Triangle> readVertexData(string fileName);
 

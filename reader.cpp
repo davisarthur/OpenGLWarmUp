@@ -3,6 +3,7 @@
 #include <GL/glew.h>
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
 
 #include <iostream>
 
@@ -96,8 +97,9 @@ int main() {
 
     // set up vertex data (and buffer(s)) and configure vertex attributes
     // ------------------------------------------------------------------
-    vector<vertexData> vertices = readVertexData("data/cube.obj");
-    int numBytes = vertices.size() * sizeof(vertices);
+    vector<Triangle> triangles = readVertexData("data/cube.obj");
+    int numBytes = triangles.size() * sizeof(triangles[0]);
+    int vertexSize = sizeof(triangles[0].vertex1);
 
     unsigned int VBO, VAO;
     glGenVertexArrays(1, &VAO);
@@ -106,7 +108,7 @@ int main() {
     glBindVertexArray(VAO);
 
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, numBytes, vertices.data(), GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, numBytes, triangles.data(), GL_STATIC_DRAW);
 
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
@@ -137,7 +139,7 @@ int main() {
         // draw our first triangle
         glUseProgram(shaderProgram);
         glBindVertexArray(VAO); // seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
-        glDrawArrays(GL_TRIANGLES, 0, vertices.size() - 1);
+        glDrawArrays(GL_TRIANGLES, 0, triangles.size() * 3);
         // glBindVertexArray(0); // no need to unbind it every time 
  
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)

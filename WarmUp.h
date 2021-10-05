@@ -7,6 +7,20 @@ struct vertexData {
    glm::vec3 pos;
 };
 
-vector<vertexData> readVertexData(string fileName);
+struct Triangle {
+   struct vertexData vertex1;
+   struct vertexData vertex2;
+   struct vertexData vertex3;
+};
+
+/*
+struct SeparateTriangles {
+   vector<Triangle> triangles;
+      
+   void addTriangle(Triangle t);
+};
+*/
+
+vector<Triangle> readVertexData(string fileName);
 
 vector<string> split(string str, char del);

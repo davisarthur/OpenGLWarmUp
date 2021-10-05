@@ -10,22 +10,23 @@
 using namespace std;
 
 /*
-int main () {
-   vector<vertexData> vertices = readVertexData("data/cube.obj");
-   for (int i = 0; i < vertices.size(); i++) {
-      cout << vertices[i].pos.x << ", " << vertices[i].pos.y << ", " << vertices[i].pos.z << endl;
-   }
+void SeparateTriangles::addTriangle(Triangle t) {
+   triangles.push_back(t);
 }
 */
 
-vector<vertexData> readVertexData(string filename) {
+vector<Triangle> readVertexData(string filename) {
    string line;
    ifstream myfile(filename);
    vector<vertexData> vertices;
+   vector<Triangle> triangles;
    if (myfile.is_open()) {
       while (getline(myfile, line)) {
          vector<string> tokens = split(line, ' ');
-         if (tokens.size() != 0 && tokens[0] == "v") {
+         if (tokens.size() == 0) {
+            continue;
+         }
+         else if (tokens[0] == "v") {
             float x = std::stof(tokens[1]);
             float y = std::stof(tokens[2]);
             float z = std::stof(tokens[3]);
@@ -33,13 +34,31 @@ vector<vertexData> readVertexData(string filename) {
             vertex.pos = glm::vec3(x, y, z);
             vertices.push_back(vertex);
          }
+         else if (tokens[0] == "f") {
+            int first = std::stoi(split(tokens[1], '/')[0]);
+            int second = std::stoi(split(tokens[2], '/')[0]);
+            int third = std::stoi(split(tokens[3], '/')[0]);
+            int fourth = std::stoi(split(tokens[4], '/')[0]);
+            
+            Triangle t1;
+            t1.vertex1 = vertices[first];
+            t1.vertex2 = vertices[second];
+            t1.vertex3 = vertices[third];
+            triangles.push_back(t1);
+
+            Triangle t2;
+            t2.vertex1 = vertices[first];
+            t2.vertex2 = vertices[second];
+            t2.vertex3 = vertices[third];
+            triangles.push_back(t2);
+         }
       }
       myfile.close();
    }
 
    else cout << "Unable to open file"; 
 
-   return vertices;
+   return triangles;
 }
 
 // String tokenizer based on the tutorial from https://www.geeksforgeeks.org/how-to-split-a-string-in-cc-python-and-java/

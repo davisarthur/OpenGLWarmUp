@@ -42,14 +42,12 @@ int main() {
     glewInit();
 
     // read vertex shader
-    char* vertexShaderSource;
-    string vertexShaderString = readFile("source.vs");
-    vertexShaderSource = &vertexShaderString[0];
+    string vertexShaderSourceString = readFile("source.vs");
+    char* vertexShaderSource = &vertexShaderSourceString[0];
 
     // read fragment shader
-    char* fragmentShaderSource;
-    string fragmentShaderString = readFile("source.fs");
-    fragmentShaderSource = &fragmentShaderString[0];
+    string fragmentShaderSourceString = readFile("source.fs");
+    char* fragmentShaderSource = &fragmentShaderSourceString[0];
 
     // build and compile our shader program
     // ------------------------------------
@@ -91,18 +89,12 @@ int main() {
 
     // set up vertex data (and buffer(s)) and configure vertex attributes
     // ------------------------------------------------------------------
-    vector<Triangle> triangles = readVertexData("data/cube.obj");
-    for (int i = 0; i < triangles.size(); i++) {
-        cout << "Triangle " << i << endl;
-        cout << triangles[i].vertex1.pos.x << ", " << triangles[i].vertex1.pos.y << ", " << triangles[i].vertex1.pos.z << endl;
-        cout << triangles[i].vertex2.pos.x << ", " << triangles[i].vertex2.pos.y << ", " << triangles[i].vertex2.pos.z << endl;
-        cout << triangles[i].vertex3.pos.x << ", " << triangles[i].vertex3.pos.y << ", " << triangles[i].vertex3.pos.z << endl;
-    }
-
+    vector<Triangle> triangles = readCubeVertexData("data/cube.obj");
+    
     int numBytes = triangles.size() * sizeof(triangles[0]);
     int vertexSize = sizeof(triangles[0].vertex1);
     glm::mat4 lookAt = glm::lookAt(glm::vec3(0.5, 1.0, 4.0), glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0));
-    glm::mat4 projMatrix = glm::ortho(-5.0f, 5.0f, -5.0f, 5.0f, -10.0f, 10.0f);
+    glm::mat4 projMatrix = glm::ortho(-2.0f, 2.0f, -2.0f, 2.0f, -10.0f, 10.0f);
 
     GLint lMatID = glGetUniformLocation(shaderProgram, "camMatrix");
     GLint pMatID = glGetUniformLocation(shaderProgram, "projMatrix");

@@ -1,9 +1,13 @@
 // Based on templates from learnopengl.com
+#include "WarmUp.h"
 #include <GL/glew.h>
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
+#include "glm/ext.hpp"
 
 #include <iostream>
+#include <math.h>
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow *window);
@@ -11,23 +15,6 @@ void processInput(GLFWwindow *window);
 // settings
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
-
-const char *vertexShaderSource = "#version 330 core\n"
-    "layout (location = 0) in vec3 aPos;\n"
-    "layout (location = 1) in vec3 in_Color;\n"
-    "out vec3 vColor;\n"
-    "void main()\n"
-    "{\n"
-    "   vColor = in_Color;\n"
-    "   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
-    "}\0";
-const char *fragmentShaderSource = "#version 330 core\n"
-    "out vec4 FragColor;\n"
-    "in vec3 vColor;\n"
-    "void main()\n"
-    "{\n"
-    "   FragColor = vec4(vColor, 1.0f);\n"
-    "}\n\0";
 
 int main() {
     // glfw: initialize and configure
@@ -54,6 +41,14 @@ int main() {
 
     // // glew: load all OpenGL function pointers
     glewInit();
+
+    // read vertex shader
+    string vertexShaderSourceString = readFile("sourceColor.vs");
+    char* vertexShaderSource = &vertexShaderSourceString[0];
+
+    // read fragment shader
+    string fragmentShaderSourceString = readFile("sourceColor.fs");
+    char* fragmentShaderSource = &fragmentShaderSourceString[0];
 
     // build and compile our shader program
     // ------------------------------------
@@ -95,11 +90,30 @@ int main() {
 
     // set up vertex data (and buffer(s)) and configure vertex attributes
     // ------------------------------------------------------------------
-    float vertices[] = {
-        -0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, // left  
-         0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, // right 
-         0.0f,  0.5f, 0.0f, 0.0f, 0.0f, 1.0f,  // top   
-    };
+    vector<Triangle> triangles = readDolphinVertexData("data/dolphins.obj");
+
+    float red;
+    float green;
+    float blue;
+    cout << "Define the RGB color to apply to each vertex in the mesh.";
+    cout << "\nInput the value of the red channel (0 to 1): ";
+    cin >> red;
+    cout << "Input the value of the green channel (0 to 1): ";
+    cin >> green;
+    cout << "Input the value of the blue channel (0 to 1): ";
+    cin >> blue;
+
+    GLint colorID = glGetUniformLocation(shaderProgram, "vcolor");
+    glUniform3f(colorID, red, green, blue);
+
+    int numBytes = triangles.size() * sizeof(triangles[0]);
+    int vertexSize = sizeof(triangles[0].vertex1);
+    glm::mat4 lookAt = glm::lookAt(glm::vec3(0.0, 0.0, 50.0), glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0));
+    glm::mat4 projMatrix = glm::ortho(-500.0f, 500.0f, -500.0f, 500.0f, -100.0f, 100.0f);
+    glm::mat4 transformMatrix = projMatrix * lookAt;
+
+    GLint pMatID = glGetUniformLocation(shaderProgram, "transformMatrix");
+    glUniformMatrix4fv(pMatID, 1, GL_FALSE, glm::value_ptr(transformMatrix));
 
     unsigned int VBO, VAO;
     glGenVertexArrays(1, &VAO);
@@ -108,21 +122,17 @@ int main() {
     glBindVertexArray(VAO);
 
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, numBytes, triangles.data(), GL_STATIC_DRAW);
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
-
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*) (sizeof(float) * 3));
-    glEnableVertexAttribArray(1);
 
     // note that this is allowed, the call to glVertexAttribPointer registered VBO as the vertex attribute's bound vertex buffer object so afterwards we can safely unbind
     glBindBuffer(GL_ARRAY_BUFFER, 0); 
 
     // You can unbind the VAO afterwards so other VAO calls won't accidentally modify this VAO, but this rarely happens. Modifying other
     // VAOs requires a call to glBindVertexArray anyways so we generally don't unbind VAOs (nor VBOs) when it's not directly necessary.
-    glBindVertexArray(0); 
-
+    glBindVertexArray(0);
 
     // uncomment this call to draw in wireframe polygons.
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -141,8 +151,10 @@ int main() {
 
         // draw our first triangle
         glUseProgram(shaderProgram);
+        glUniform3f(colorID, red, green, blue);
+        glUniformMatrix4fv(pMatID, 1, GL_FALSE, glm::value_ptr(transformMatrix));
         glBindVertexArray(VAO); // seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
-        glDrawArrays(GL_TRIANGLES, 0, 3);
+        glDrawArrays(GL_TRIANGLES, 0, triangles.size() * 3);
         // glBindVertexArray(0); // no need to unbind it every time 
  
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)

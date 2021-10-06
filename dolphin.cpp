@@ -7,6 +7,7 @@
 #include "glm/ext.hpp"
 
 #include <iostream>
+#include <math.h>
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow *window);
@@ -93,13 +94,12 @@ int main() {
 
     int numBytes = triangles.size() * sizeof(triangles[0]);
     int vertexSize = sizeof(triangles[0].vertex1);
-    glm::mat4 lookAt = glm::lookAt(glm::vec3(0.5, 1.0, 4.0), glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0));
-    glm::mat4 projMatrix = glm::ortho(-500.0f, 500.0f, -500.0f, 500.0f, -100.0f, 100.0f);
+    glm::mat4 lookAt = glm::lookAt(glm::vec3(0.0, 0.0, 250.0), glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0));
+    glm::mat4 perspectiveMatrix = glm::perspective((float) (M_PI / 180.0f * 140.0f), (GLfloat) SCR_WIDTH / (GLfloat) SCR_HEIGHT, 10.0f, 1000.0f);
+    glm::mat4 transformMatrix = perspectiveMatrix * lookAt;
 
-    GLint lMatID = glGetUniformLocation(shaderProgram, "camMatrix");
-    GLint pMatID = glGetUniformLocation(shaderProgram, "projMatrix");
-    glUniformMatrix4fv(pMatID, 1, GL_FALSE, glm::value_ptr(projMatrix));
-    glUniformMatrix4fv(lMatID, 1, GL_FALSE, glm::value_ptr(lookAt));
+    GLint pMatID = glGetUniformLocation(shaderProgram, "transformMatrix");
+    glUniformMatrix4fv(pMatID, 1, GL_FALSE, glm::value_ptr(transformMatrix));
 
     unsigned int VBO, VAO;
     glGenVertexArrays(1, &VAO);
@@ -118,8 +118,7 @@ int main() {
 
     // You can unbind the VAO afterwards so other VAO calls won't accidentally modify this VAO, but this rarely happens. Modifying other
     // VAOs requires a call to glBindVertexArray anyways so we generally don't unbind VAOs (nor VBOs) when it's not directly necessary.
-    glBindVertexArray(0); 
-
+    glBindVertexArray(0);
 
     // uncomment this call to draw in wireframe polygons.
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -138,8 +137,8 @@ int main() {
 
         // draw our first triangle
         glUseProgram(shaderProgram);
-        glUniformMatrix4fv(pMatID, 1, GL_FALSE, glm::value_ptr(projMatrix));
-        glUniformMatrix4fv(lMatID, 1, GL_FALSE, glm::value_ptr(lookAt));
+        glUniformMatrix4fv(pMatID, 1, GL_FALSE, glm::value_ptr(transformMatrix));
+        //glUniformMatrix4fv(lMatID, 1, GL_FALSE, glm::value_ptr(lookAt));
         glBindVertexArray(VAO); // seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
         glDrawArrays(GL_TRIANGLES, 0, triangles.size() * 3);
         // glBindVertexArray(0); // no need to unbind it every time 

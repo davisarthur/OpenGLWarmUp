@@ -46,15 +46,31 @@ int main() {
     cout << "Shader codes\n"
         "1 - Custom color\n"
         "2 - Switch x and y coordinates\n"
-        "3 - Scale each vertex position by 0.5\n"
+        "3 - Scale x position by 0.5 and y position by 1.5\n"
+        "4 - Color based on normalized position (RGB = (x, y, z))\n"
         "Enter the integer code of the shader you would like to use: ";
     cin >> mode;
+    bool wireframe;
+    cout << "Enter 1 to render in wireframe mode. Otherwise enter 0: ";
+    cin >> wireframe;
 
     string vertexShaderFileName;
     string fragmentShaderFileName;
     if (mode == 1) {
-        vertexShaderFileName = "sourceColor.vs";
-        fragmentShaderFileName = "sourceColor.fs";
+        vertexShaderFileName = "source.vs";
+        fragmentShaderFileName = "customColor.fs";
+    }
+    else if (mode == 2) {
+        vertexShaderFileName = "switchCoords.vs";
+        fragmentShaderFileName = "source.fs";
+    }
+    else if (mode == 3) {
+        vertexShaderFileName = "scale.vs";
+        fragmentShaderFileName = "source.fs";
+    }
+    else if (mode == 4) {
+        vertexShaderFileName = "colorCoords.vs";
+        fragmentShaderFileName = "colorCoords.fs";
     }
     else {
         cout << "Invalid code!";
@@ -110,10 +126,11 @@ int main() {
     // ------------------------------------------------------------------
     vector<Triangle> triangles = readDolphinVertexData("data/dolphins.obj");
 
+    GLint colorID;
+    float red;
+    float green;
+    float blue;
     if (mode == 1) {
-        float red;
-        float green;
-        float blue;
         cout << "Define the RGB color to apply to each vertex in the mesh.";
         cout << "\nInput the value of the red channel (0 to 1): ";
         cin >> red;
@@ -122,7 +139,7 @@ int main() {
         cout << "Input the value of the blue channel (0 to 1): ";
         cin >> blue;
 
-        GLint colorID = glGetUniformLocation(shaderProgram, "vcolor");
+        colorID = glGetUniformLocation(shaderProgram, "vcolor");
         glUniform3f(colorID, red, green, blue);
     }
     
@@ -156,7 +173,9 @@ int main() {
     glBindVertexArray(0);
 
     // uncomment this call to draw in wireframe polygons.
-    //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    if (wireframe) {
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    }
 
     // render loop
     // -----------
@@ -172,8 +191,10 @@ int main() {
 
         // draw our first triangle
         glUseProgram(shaderProgram);
-        glUniform3f(colorID, red, green, blue);
         glUniformMatrix4fv(pMatID, 1, GL_FALSE, glm::value_ptr(transformMatrix));
+        if (mode == 1) {
+            glUniform3f(colorID, red, green, blue);
+        }
         glBindVertexArray(VAO); // seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
         glDrawArrays(GL_TRIANGLES, 0, triangles.size() * 3);
         // glBindVertexArray(0); // no need to unbind it every time 

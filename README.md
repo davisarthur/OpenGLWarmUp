@@ -37,10 +37,9 @@ g++ -lglfw -lglew helperFunctions.cpp dolphins.cpp -o dolphins.out
 ```
 Finally, to run the program use the following command: ```./dolphins.out```
 
-## Dolphins
+## Flowers
 The ```flowers.cpp``` program loads the model from the ```data/flowers.obj``` file and renders it with orthographic projection. 
-This file will prompt the user to enter information about which shaders they would like to use. Use the following command to compile 
-this program on Mac:
+Use the following command to compile this program on Mac:
 ```
 g++ -lglfw -lglew -framework OpenGL helperFunctions.cpp flowers.cpp -o flowers.out
 ```

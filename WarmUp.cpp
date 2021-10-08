@@ -10,7 +10,7 @@
 #include "WarmUp.h"
 using namespace std;
 
-vector<Triangle> readCubeVertexData(string filename) {
+vector<Triangle> readVertexData(string filename) {
    string line;
    ifstream myfile(filename);
    vector<vertexData> vertices;
@@ -30,61 +30,28 @@ vector<Triangle> readCubeVertexData(string filename) {
             vertices.push_back(vertex);
          }
          else if (tokens[0] == "f") {
-            int first = std::stoi(split(tokens[1], '/')[0]) - 1;
-            int second = std::stoi(split(tokens[2], '/')[0]) - 1;
-            int third = std::stoi(split(tokens[3], '/')[0]) - 1;
-            int fourth = std::stoi(split(tokens[4], '/')[0]) - 1;
-            
+            vector<int> indeces;
+
+            // read in vertex indeces of face
+            for (int i = 1; i < tokens.size(); i++) {
+               indeces.push_back(std::stoi(split(tokens[i], '/')[0]) - 1);
+            } 
+
+            // create first triangle
             Triangle t1;
-            t1.vertex1 = vertices[first];
-            t1.vertex2 = vertices[second];
-            t1.vertex3 = vertices[third];
+            t1.vertex1 = vertices[indeces[0]];
+            t1.vertex2 = vertices[indeces[1]];
+            t1.vertex3 = vertices[indeces[2]];
             triangles.push_back(t1);
 
-            Triangle t2;
-            t2.vertex1 = vertices[first];
-            t2.vertex2 = vertices[third];
-            t2.vertex3 = vertices[fourth];
-            triangles.push_back(t2);
-         }
-      }
-      myfile.close();
-   }
-
-   else cout << "Unable to open file"; 
-
-   return triangles;
-}
-
-vector<Triangle> readDolphinVertexData(string filename) {
-   string line;
-   ifstream myfile(filename);
-   vector<vertexData> vertices;
-   vector<Triangle> triangles;
-   if (myfile.is_open()) {
-      while (getline(myfile, line)) {
-         vector<string> tokens = split(line, ' ');
-         if (tokens.size() == 0) {
-            continue;
-         }
-         else if (tokens[0] == "v") {
-            float x = std::stof(tokens[1]);
-            float y = std::stof(tokens[2]);
-            float z = std::stof(tokens[3]);
-            struct vertexData vertex;
-            vertex.pos = glm::vec3(x, y, z);
-            vertices.push_back(vertex);
-         }
-         else if (tokens[0] == "f") {
-            int first = std::stoi(split(tokens[1], '/')[0]) - 1;
-            int second = std::stoi(split(tokens[2], '/')[0]) - 1;
-            int third = std::stoi(split(tokens[3], '/')[0]) - 1;
-            
-            Triangle t1;
-            t1.vertex1 = vertices[first];
-            t1.vertex2 = vertices[second];
-            t1.vertex3 = vertices[third];
-            triangles.push_back(t1);
+            // create any other triangles in that face
+            for (int i = 0; i < tokens.size() - 4; i++) {
+               Triangle t;
+               t.vertex1 = vertices[indeces[0]];
+               t.vertex2 = vertices[indeces[i + 2]];
+               t.vertex3 = vertices[indeces[i + 3]];
+               triangles.push_back(t);
+            }
          }
       }
       myfile.close();

@@ -90,7 +90,7 @@ int main() {
 
     // set up vertex data (and buffer(s)) and configure vertex attributes
     // ------------------------------------------------------------------
-    vector<Triangle> triangles = readDolphinVertexData("data/dolphins.obj");
+    vector<Triangle> triangles = readVertexData("data/dolphins.obj");
 
     int numBytes = triangles.size() * sizeof(triangles[0]);
     int vertexSize = sizeof(triangles[0].vertex1);

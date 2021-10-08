@@ -7,7 +7,6 @@
 #include "glm/ext.hpp"
 
 #include <iostream>
-#include <math.h>
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow *window);
@@ -42,46 +41,12 @@ int main() {
     // // glew: load all OpenGL function pointers
     glewInit();
 
-    int mode;
-    cout << "Shader codes\n"
-        "1 - Custom color\n"
-        "2 - Switch x and y coordinates\n"
-        "3 - Scale x position by 0.5 and y position by 1.5\n"
-        "4 - Color based on normalized position (RGB = (x, y, z))\n"
-        "Enter the integer code of the shader you would like to use: ";
-    cin >> mode;
-    bool wireframe;
-    cout << "Enter 1 to render in wireframe mode. Otherwise enter 0: ";
-    cin >> wireframe;
-
-    string vertexShaderFileName;
-    string fragmentShaderFileName;
-    if (mode == 1) {
-        vertexShaderFileName = "source.vs";
-        fragmentShaderFileName = "customColor.fs";
-    }
-    else if (mode == 2) {
-        vertexShaderFileName = "switchCoords.vs";
-        fragmentShaderFileName = "source.fs";
-    }
-    else if (mode == 3) {
-        vertexShaderFileName = "scale.vs";
-        fragmentShaderFileName = "source.fs";
-    }
-    else if (mode == 4) {
-        vertexShaderFileName = "colorCoords.vs";
-        fragmentShaderFileName = "colorCoords.fs";
-    }
-    else {
-        cout << "Invalid code!";
-    }
-
     // read vertex shader
-    string vertexShaderSourceString = readFile(vertexShaderFileName);
+    string vertexShaderSourceString = readFile("colorCoords.vs");
     char* vertexShaderSource = &vertexShaderSourceString[0];
 
     // read fragment shader
-    string fragmentShaderSourceString = readFile(fragmentShaderFileName);
+    string fragmentShaderSourceString = readFile("colorCoords.fs");
     char* fragmentShaderSource = &fragmentShaderSourceString[0];
 
     // build and compile our shader program
@@ -124,30 +89,12 @@ int main() {
 
     // set up vertex data (and buffer(s)) and configure vertex attributes
     // ------------------------------------------------------------------
-    vector<Triangle> triangles = readVertexData("data/dolphins.obj");
-
-    GLint colorID;
-    float red;
-    float green;
-    float blue;
-    if (mode == 1) {
-        cout << "Define the RGB color to apply to each vertex in the mesh.";
-        cout << "\nInput the value of the red channel (0 to 1): ";
-        cin >> red;
-        cout << "Input the value of the green channel (0 to 1): ";
-        cin >> green;
-        cout << "Input the value of the blue channel (0 to 1): ";
-        cin >> blue;
-
-        colorID = glGetUniformLocation(shaderProgram, "vcolor");
-        glUniform3f(colorID, red, green, blue);
-    }
+    vector<Triangle> triangles = readVertexData("data/flowers.obj");
     
-
     int numBytes = triangles.size() * sizeof(triangles[0]);
     int vertexSize = sizeof(triangles[0].vertex1);
-    glm::mat4 lookAt = glm::lookAt(glm::vec3(0.0, 0.0, 50.0), glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0));
-    glm::mat4 projMatrix = glm::ortho(-500.0f, 500.0f, -500.0f, 500.0f, -100.0f, 100.0f);
+    glm::mat4 lookAt = glm::lookAt(glm::vec3(0.0, 1.0, 5.0), glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0));
+    glm::mat4 projMatrix = glm::ortho(-20.0f, 20.0f, -20.0f, 20.0f, -10.0f, 10.0f);
     glm::mat4 transformMatrix = projMatrix * lookAt;
 
     GLint pMatID = glGetUniformLocation(shaderProgram, "transformMatrix");
@@ -170,12 +117,11 @@ int main() {
 
     // You can unbind the VAO afterwards so other VAO calls won't accidentally modify this VAO, but this rarely happens. Modifying other
     // VAOs requires a call to glBindVertexArray anyways so we generally don't unbind VAOs (nor VBOs) when it's not directly necessary.
-    glBindVertexArray(0);
+    glBindVertexArray(0); 
+
 
     // uncomment this call to draw in wireframe polygons.
-    if (wireframe) {
-        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-    }
+    //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
     // render loop
     // -----------
@@ -192,9 +138,6 @@ int main() {
         // draw our first triangle
         glUseProgram(shaderProgram);
         glUniformMatrix4fv(pMatID, 1, GL_FALSE, glm::value_ptr(transformMatrix));
-        if (mode == 1) {
-            glUniform3f(colorID, red, green, blue);
-        }
         glBindVertexArray(VAO); // seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
         glDrawArrays(GL_TRIANGLES, 0, triangles.size() * 3);
         // glBindVertexArray(0); // no need to unbind it every time 

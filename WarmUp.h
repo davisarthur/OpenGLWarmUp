@@ -15,8 +15,6 @@ struct Triangle {
 
 string readFile(string fileName);
 
-vector<Triangle> readCubeVertexData(string fileName);
-
-vector<Triangle> readDolphinVertexData(string fileName);
+vector<Triangle> readVertexData(string fileName);
 
 vector<string> split(string str, char del);

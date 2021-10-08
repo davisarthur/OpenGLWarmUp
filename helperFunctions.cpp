@@ -7,7 +7,7 @@
 #include <iostream>
 #include <cstring>
 #include <fstream>
-#include "WarmUp.h"
+#include "helperFunctions.h"
 using namespace std;
 
 vector<Triangle> readVertexData(string filename) {

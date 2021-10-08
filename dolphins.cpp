@@ -1,5 +1,5 @@
 // Based on templates from learnopengl.com
-#include "WarmUp.h"
+#include "helperFunctions.h"
 #include <GL/glew.h>
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
@@ -44,6 +44,7 @@ int main() {
 
     int mode;
     cout << "Shader codes\n"
+        "0 - Default shader (white)\n"
         "1 - Custom color\n"
         "2 - Switch x and y coordinates\n"
         "3 - Scale x position by 0.5 and y position by 1.5\n"
@@ -56,7 +57,11 @@ int main() {
 
     string vertexShaderFileName;
     string fragmentShaderFileName;
-    if (mode == 1) {
+    if (mode == 0) {
+        vertexShaderFileName = "source.vs";
+        fragmentShaderFileName = "source.fs";
+    }
+    else if (mode == 1) {
         vertexShaderFileName = "source.vs";
         fragmentShaderFileName = "customColor.fs";
     }

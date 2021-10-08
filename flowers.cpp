@@ -1,5 +1,5 @@
 // Based on templates from learnopengl.com
-#include "WarmUp.h"
+#include "helperFunctions.h"
 #include <GL/glew.h>
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
@@ -121,7 +121,7 @@ int main() {
 
 
     // uncomment this call to draw in wireframe polygons.
-    //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
     // render loop
     // -----------

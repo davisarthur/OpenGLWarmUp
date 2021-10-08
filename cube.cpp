@@ -89,7 +89,7 @@ int main() {
 
     // set up vertex data (and buffer(s)) and configure vertex attributes
     // ------------------------------------------------------------------
-    vector<Triangle> triangles = readCubeVertexData("data/cube.obj");
+    vector<Triangle> triangles = readVertexData("data/cube.obj");
     
     int numBytes = triangles.size() * sizeof(triangles[0]);
     int vertexSize = sizeof(triangles[0].vertex1);

@@ -42,12 +42,30 @@ int main() {
     // // glew: load all OpenGL function pointers
     glewInit();
 
+    int mode;
+    cout << "Shader codes\n"
+        "1 - Custom color\n"
+        "2 - Switch x and y coordinates\n"
+        "3 - Scale each vertex position by 0.5\n"
+        "Enter the integer code of the shader you would like to use: ";
+    cin >> mode;
+
+    string vertexShaderFileName;
+    string fragmentShaderFileName;
+    if (mode == 1) {
+        vertexShaderFileName = "sourceColor.vs";
+        fragmentShaderFileName = "sourceColor.fs";
+    }
+    else {
+        cout << "Invalid code!";
+    }
+
     // read vertex shader
-    string vertexShaderSourceString = readFile("sourceColor.vs");
+    string vertexShaderSourceString = readFile(vertexShaderFileName);
     char* vertexShaderSource = &vertexShaderSourceString[0];
 
     // read fragment shader
-    string fragmentShaderSourceString = readFile("sourceColor.fs");
+    string fragmentShaderSourceString = readFile(fragmentShaderFileName);
     char* fragmentShaderSource = &fragmentShaderSourceString[0];
 
     // build and compile our shader program
@@ -92,19 +110,22 @@ int main() {
     // ------------------------------------------------------------------
     vector<Triangle> triangles = readDolphinVertexData("data/dolphins.obj");
 
-    float red;
-    float green;
-    float blue;
-    cout << "Define the RGB color to apply to each vertex in the mesh.";
-    cout << "\nInput the value of the red channel (0 to 1): ";
-    cin >> red;
-    cout << "Input the value of the green channel (0 to 1): ";
-    cin >> green;
-    cout << "Input the value of the blue channel (0 to 1): ";
-    cin >> blue;
+    if (mode == 1) {
+        float red;
+        float green;
+        float blue;
+        cout << "Define the RGB color to apply to each vertex in the mesh.";
+        cout << "\nInput the value of the red channel (0 to 1): ";
+        cin >> red;
+        cout << "Input the value of the green channel (0 to 1): ";
+        cin >> green;
+        cout << "Input the value of the blue channel (0 to 1): ";
+        cin >> blue;
 
-    GLint colorID = glGetUniformLocation(shaderProgram, "vcolor");
-    glUniform3f(colorID, red, green, blue);
+        GLint colorID = glGetUniformLocation(shaderProgram, "vcolor");
+        glUniform3f(colorID, red, green, blue);
+    }
+    
 
     int numBytes = triangles.size() * sizeof(triangles[0]);
     int vertexSize = sizeof(triangles[0].vertex1);
